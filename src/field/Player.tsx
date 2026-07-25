@@ -1,29 +1,28 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
+import Animated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
 import { GROUND_HEIGHT, PLAYER_SIZE } from '../data/constants';
 
 type Props = {
-  x: number; // ステージ内の横位置
-  y: number; // 地面からの高さ
-  cameraX: number; // カメラの位置(画面に映す範囲)
-  facing: 1 | -1; // 向いている方向
+  worldX: SharedValue<number>; // ステージ内の横位置
+  bottom: SharedValue<number>; // 地面からの高さ
+  facing: SharedValue<1 | -1>; // 向いている方向
+  cameraX: SharedValue<number>; // カメラの位置(画面に映す範囲)
 };
 
-// React.memo: x/y/cameraX/facing のどれかが変わった時だけ再描画する。
-function PlayerComponent({ x, y, cameraX, facing }: Props) {
-  return (
-    <View
-      style={[
-        styles.player,
-        {
-          left: x - cameraX - PLAYER_SIZE / 2,
-          bottom: GROUND_HEIGHT + y,
-          transform: [{ scaleX: facing }],
-        },
-      ]}
-    />
-  );
+// 位置は transform だけで動かす(left/bottom を毎フレーム書き換えるとレイアウト再計算が走るため)。
+// shared value の更新は React の再描画を伴わず、UIスレッド側で直接反映される。
+function PlayerComponent({ worldX, bottom, facing, cameraX }: Props) {
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: worldX.value - cameraX.value - PLAYER_SIZE / 2 },
+      { translateY: -bottom.value },
+      { scaleX: facing.value },
+    ],
+  }));
+
+  return <Animated.View style={[styles.player, animatedStyle]} />;
 }
 
 export const Player = React.memo(PlayerComponent);
@@ -31,6 +30,8 @@ export const Player = React.memo(PlayerComponent);
 const styles = StyleSheet.create({
   player: {
     position: 'absolute',
+    left: 0,
+    bottom: GROUND_HEIGHT,
     width: PLAYER_SIZE,
     height: PLAYER_SIZE,
     backgroundColor: '#f4a261',

@@ -4,12 +4,14 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 type Props = {
   moveDirectionRef: React.MutableRefObject<number>;
   jumpRequestedRef: React.MutableRefObject<boolean>;
+  // フィールドでは「ジャンプ」、町では「インタラクト」など、画面によって意味が変わるボタンの見た目。
+  actionIcon?: string;
 };
 
 // ボタンを押した/離したタイミングで ref の中身を書き換えるだけ。
 // ref の書き換えは再描画を起こさないので、このコンポーネントは
 // ゲームプレイ中に一切再描画されない(React.memo の効果)。
-function ControlsComponent({ moveDirectionRef, jumpRequestedRef }: Props) {
+function ControlsComponent({ moveDirectionRef, jumpRequestedRef, actionIcon = '▲' }: Props) {
   return (
     <>
       <Pressable
@@ -42,7 +44,7 @@ function ControlsComponent({ moveDirectionRef, jumpRequestedRef }: Props) {
           jumpRequestedRef.current = true;
         }}
       >
-        <Text style={styles.buttonText}>▲</Text>
+        <Text style={styles.buttonText}>{actionIcon}</Text>
       </Pressable>
     </>
   );

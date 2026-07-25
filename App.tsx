@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { GameProvider, useGame } from './src/context/GameContext';
 import { FieldScreen } from './src/screens/FieldScreen';
 import { BattleScreen } from './src/screens/BattleScreen';
+import { TownScreen } from './src/screens/TownScreen';
 
 export default function App() {
   return (
@@ -15,5 +16,7 @@ export default function App() {
 
 function Screens() {
   const { screen } = useGame();
-  return screen === 'field' ? <FieldScreen /> : <BattleScreen />;
+  if (screen === 'field') return <FieldScreen />;
+  if (screen === 'town') return <TownScreen />;
+  return <BattleScreen />;
 }

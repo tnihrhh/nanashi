@@ -3,7 +3,7 @@
 // 動きの仕組みを直したいときは、まずこのファイルを見てください。
 
 import { GRAVITY, JUMP_SPEED, MOVE_SPEED, PLAYER_SIZE } from '../data/constants';
-import { Platform, WORLD_LENGTH } from '../data/levelData';
+import { Platform } from '../data/levelData';
 
 export type PlayerPhysics = {
   worldX: number; // ステージ内でのプレイヤーの横位置
@@ -26,14 +26,15 @@ export function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
 
-// 左右移動を反映する
+// 左右移動を反映する(worldLength はステージごとに異なるため引数で受け取る)
 export function stepPlayerHorizontal(
   physics: PlayerPhysics,
   moveDirection: number,
   dt: number,
+  worldLength: number,
 ): void {
   if (moveDirection === 0) return;
-  physics.worldX = clamp(physics.worldX + moveDirection * MOVE_SPEED * dt, 0, WORLD_LENGTH);
+  physics.worldX = clamp(physics.worldX + moveDirection * MOVE_SPEED * dt, 0, worldLength);
   physics.facing = moveDirection > 0 ? 1 : -1;
 }
 

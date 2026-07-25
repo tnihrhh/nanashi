@@ -1,41 +1,37 @@
 import React from 'react';
-import { StyleSheet, View, useWindowDimensions } from 'react-native';
-
-import { WORLD_LENGTH } from '../data/levelData';
+import { StyleSheet, useWindowDimensions } from 'react-native';
+import Animated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
 type Props = {
-  cameraX: number;
+  cameraX: SharedValue<number>;
+  worldLength: number;
 };
 
 // 奥・手前の2枚のレイヤーを別の速度でスクロールさせる視差効果(パララックス)
-function BackgroundComponent({ cameraX }: Props) {
+function BackgroundComponent({ cameraX, worldLength }: Props) {
   const { width, height } = useWindowDimensions();
-  const layerWidth = WORLD_LENGTH + width;
+  const layerWidth = worldLength + width;
+
+  const farStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: -cameraX.value * 0.2 }],
+  }));
+  const nearStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: -cameraX.value * 0.5 }],
+  }));
 
   return (
     <>
-      <View
+      <Animated.View
         pointerEvents="none"
         style={[
           styles.layer,
-          {
-            width: layerWidth,
-            height,
-            backgroundColor: '#0d1b2a',
-            transform: [{ translateX: -cameraX * 0.2 }],
-          },
+          { width: layerWidth, height, backgroundColor: '#0d1b2a' },
+          farStyle,
         ]}
       />
-      <View
+      <Animated.View
         pointerEvents="none"
-        style={[
-          styles.hillsLayer,
-          {
-            width: layerWidth,
-            height: height * 0.4,
-            transform: [{ translateX: -cameraX * 0.5 }],
-          },
-        ]}
+        style={[styles.hillsLayer, { width: layerWidth, height: height * 0.4 }, nearStyle]}
       />
     </>
   );

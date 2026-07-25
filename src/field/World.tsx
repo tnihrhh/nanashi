@@ -1,19 +1,26 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import Animated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
 import { GROUND_HEIGHT } from '../data/constants';
-import { PLATFORMS, WORLD_LENGTH } from '../data/levelData';
+import { Platform } from '../data/levelData';
 
 type Props = {
-  cameraX: number;
+  cameraX: SharedValue<number>;
+  worldLength: number;
+  platforms: Platform[];
 };
 
-// 地面と足場を描画する。カメラが動いた時だけ再描画される。
-function WorldComponent({ cameraX }: Props) {
+// 地面と足場を描画する。カメラの動きは transform だけで反映する(足場自体は動かないので静的)。
+function WorldComponent({ cameraX, worldLength, platforms }: Props) {
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: -cameraX.value }],
+  }));
+
   return (
-    <View style={[styles.world, { width: WORLD_LENGTH, transform: [{ translateX: -cameraX }] }]}>
-      <View style={[styles.ground, { width: WORLD_LENGTH, height: GROUND_HEIGHT }]} />
-      {PLATFORMS.map((platform, index) => (
+    <Animated.View style={[styles.world, { width: worldLength }, animatedStyle]}>
+      <View style={[styles.ground, { width: worldLength, height: GROUND_HEIGHT }]} />
+      {platforms.map((platform, index) => (
         <View
           key={index}
           style={[
@@ -27,7 +34,7 @@ function WorldComponent({ cameraX }: Props) {
           ]}
         />
       ))}
-    </View>
+    </Animated.View>
   );
 }
 
